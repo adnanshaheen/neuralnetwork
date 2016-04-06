@@ -11,7 +11,7 @@ namespace LoadMNIST
     class ImageReader
     {
         //For the MNIST data set 
-        public static DataPoint[] ReadAllData(String directory)
+        public static double[][] ReadAllData(String directory)
         {
             object olock = new object();
             int fileNum = 0;
@@ -23,12 +23,12 @@ namespace LoadMNIST
             {
                 fileNum++;
             }
-            DataPoint[] dataArray = new DataPoint[fileNum];
+            double[][] dataArray = new double[fileNum][];
             //count the file number 
             //foreach (FileInfo fi in diR.GetFiles())
             FileInfo[] files = diR.GetFiles();
-            //for (int counter = 0; counter < fileNum; ++ counter)
-            Parallel.For(0, fileNum, counter =>
+            for (int counter = 0; counter < fileNum; ++ counter)
+            //Parallel.For(0, fileNum, counter =>
             {
                 String fname = files[counter].FullName;
                 Bitmap bmp = new Bitmap(Image.FromFile(fname));
@@ -48,7 +48,7 @@ namespace LoadMNIST
                 //convert to 1D
                 int totalPixels = bmp.Width * bmp.Height;
                 int tempIndex = 0;
-                byte[] pointData = new byte[totalPixels];
+                double[] pointData = new double[totalPixels];
 
                 for (int i = 0; i < bmp.Width; i++)
                 {
@@ -64,12 +64,12 @@ namespace LoadMNIST
                 Char output = files[counter].Name[0];
                 int classLabel = (Convert.ToInt16(output) - 48); //will only work with numbers 0-9
                 lock (olock)
-                    dataArray[dataIndex++] = new DataPoint(classLabel, totalPixels, pointData);
+                    dataArray[dataIndex++] = pointData;// new DataPoint(classLabel, totalPixels, pointData);
                // dataArray[dataIndex].Bmp = bmp;
                 //dataIndex++;
                 if ((dataIndex % 500) == 0)
                     Console.WriteLine("iter: " + dataIndex);
-            });
+            }/*);*/
             return dataArray;
         }
 

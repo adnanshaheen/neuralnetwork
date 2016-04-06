@@ -192,27 +192,43 @@ namespace NeuralNetworkNG
         private void btnLoadMNIST_Click(object sender, EventArgs e)
         {
             try {
+                /* TODO:
+                 * Convert the DataPoint array to double[][]
+                 * Since DataPoint is byte[], So DataPoint[] is technically
+                 * array of array, should be easily converted to double[][]
+                 */
                 //String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\trainingAll60000";
                 String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\train";
                 //String testDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\testAll10000";
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                DataPoint[] trainData = ImageReader.ReadAllData(trainDir);
+                double[][] trainData = ImageReader.ReadAllData(trainDir);
                 sw.Stop();
                 MessageBox.Show("Time taken for trainer data " + sw.ElapsedMilliseconds.ToString());
 
-                //sw.Reset();
-                //sw.Start();
-                //DataPoint[] testData = ImageReader.ReadAllData(testDir);
-
-                //sw.Stop();
-                //MessageBox.Show("Time taken for test data " + sw.ElapsedMilliseconds.ToString());
                 int[] layers = { 100, 625 }; // neurons in hidden layer, ouput layer
                 nn = new Network(625, layers);   // # of inputs
                 nn.randomizeAll();
                 nn.LearningAlg.ErrorTreshold = 0.0001f;
                 nn.LearningAlg.MaxIteration = 10000;
-                nn.LearningAlg.Learn(trainData, trainData);
+
+                double[][] expectedOutputs = {  // 50000, 625
+                    new double[] { 1,0,0,0,0,0,0,0,0,0 },
+                    new double[] { 0,1,0,0,0,0,0,0,0,0 },
+                    new double[] { 0,0,1,0,0,0,0,0,0,0 },
+                    new double[] { 0,0,0,1,0,0,0,0,0,0 },
+                    new double[] { 0,0,0,0,1,0,0,0,0,0 },
+                    new double[] { 0,0,0,0,0,1,0,0,0,0 },
+                    new double[] { 0,0,0,0,0,0,1,0,0,0 },
+                    new double[] { 0,0,0,0,0,0,0,1,0,0 },
+                    new double[] { 0,0,0,0,0,0,0,0,1,0 },
+                    new double[] { 0,0,0,0,0,0,0,0,0,1 },
+                };
+
+                sw.Restart();
+                nn.LearningAlg.Learn(trainData, expectedOutputs);
+                sw.Stop();
+                MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
             }
             catch (Exception ex)
             {

@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace LoadMNIST
 {
-    public class DataPoint // represents one image and its class label
+    class DataPoint // represents one image and its class label
     {
-        byte[] data;
-        public byte[] Data
+        long[] data;
+        public long[] Data
         {
             get
             {
@@ -78,7 +78,7 @@ namespace LoadMNIST
         {
             ClassLabel = labelInput;
             dimensionality = dimension;
-            data = new byte[dimensionality];
+            data = new long[dimensionality];
             if (dataInput != null)  // added to accomodate Parallel.For
             {
                 for (int i = 0; i < dimensionality; i++)

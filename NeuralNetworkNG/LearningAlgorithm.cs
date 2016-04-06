@@ -37,10 +37,6 @@ namespace NeuralNetworkLibAM
  
         protected double[][] outs;  // expected outputs from training data
 
-        protected DataPoint[] inputData;    // input training data from MNIST
-
-        protected DataPoint[] ouputData;    // expected output from training data
-        
         protected int iter = 0;  // iteration count
         public int Iteration
         {
@@ -84,27 +80,6 @@ namespace NeuralNetworkLibAM
                 throw new Exception("LearningAlgorithme : inputs and outputs size does not match : learning aborded ");
             ins = inputs;
             outs = expected_outputs;
-        }
-
-
-        /// <summary>
-        /// To train the neuronal network on data.
-        /// inputs[n] represents an input vector of 
-        /// the neural network and expected_outputs[n]
-        /// the expected ouput for this vector. 
-        /// </summary>
-        /// <param name="inputs">the input matrix</param>
-        /// <param name="expected_outputs">the expected output matrix</param>
-        public virtual void Learn2(DataPoint[] inputs, DataPoint[] expected_outputs)
-        {
-            if (inputs.Count() < 1)
-                throw new Exception("LearningAlgorithme : no input data : cannot learn from nothing");
-            if (expected_outputs.Count() < 1)
-                throw new Exception("LearningAlgorithme : no output data : cannot learn from nothing");
-            if (inputs.Length != expected_outputs.Length)
-                throw new Exception("LearningAlgorithme : inputs and outputs size does not match : learning aborded ");
-            inputData = inputs;
-            outputData = expected_outputs;
         }
 
 
