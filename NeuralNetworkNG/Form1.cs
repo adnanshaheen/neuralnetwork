@@ -1,0 +1,238 @@
+﻿using LoadMNIST;
+using Mapack;
+using NeuralNetworkLibAM;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace NeuralNetworkNG
+{
+    public partial class Form1 : Form
+    {
+        NeuralNetworkLibAM.Network nn = null;
+        double[][] testPatterns = null;
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void btnTest_Click(object sender, EventArgs e)
+        {
+            if (nn == null)
+            {
+                MessageBox.Show("Please train me first!!!");
+                return;
+            }
+            double[] testInput = {
+                0, 1, 1, 1, 1,
+                0, 1, 0, 0, 0,
+                0, 1, 0.9, 1, 0,
+                0, 1, 0, 1, 0,
+                0, 1, 1, 0.8, 0
+            };
+            double[] res = nn.Output(testInput);
+            string out1 = "";
+            int i = 0;
+            foreach (double num in res)
+            {
+                out1 += i.ToString() + " : " + num.ToString() + "\n";
+                i++;
+            }
+            MessageBox.Show(out1);
+            out1 = "";
+            for (i = 0; i < 10; i++)
+            {
+                out1 += nn.Output(testPatterns[i])[i].ToString() + "\n";
+            }
+            MessageBox.Show(out1);
+        }
+
+        private void btnTrain_Click(object sender, EventArgs e)
+        {
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+            //Mapack.Matrix m1 = new Mapack.Matrix(1, 3);
+            //m1[0, 0] = 5;
+            //m1[0, 1] = 7;
+            //m1[0, 2] = 8;
+            //Mapack.Matrix m2 = new Mapack.Matrix(3, 1);
+            //m2[0, 0] = 3;
+            //m2[1, 0] = 4;
+            //m2[2, 0] = 2;
+            //Matrix m3 = m1 * m2;
+            int[] layers = { 40, 10 }; // neurons in hidden layer, ouput layer
+            nn = new Network(25, layers);   // # of inputs
+            nn.randomizeAll();
+            nn.LearningAlg.ErrorTreshold = 0.0001f;
+            nn.LearningAlg.MaxIteration = 10000;
+
+            double[] pattern0 = {
+                0, 1, 1, 1, 0,
+                0, 1, 0, 1, 0,
+                0, 1, 0, 1, 0,
+                0, 1, 0, 1, 0,
+                0, 1, 1, 1, 0
+            };
+            double[] pattern1 = {
+                0, 0, 1, 0, 0,
+                0, 1, 1, 0, 0,
+                0, 0, 1, 0, 0,
+                0, 0, 1, 0, 0,
+                0, 0, 1, 0, 0
+            };
+            double[] pattern2 = {
+                0, 1, 1, 1, 0,
+                0, 0, 0, 1, 0,
+                0, 1, 1, 1, 0,
+                0, 1, 0, 0, 0,
+                0, 1, 1, 1, 0
+            };
+            double[] pattern3 = {
+                0, 1, 1, 1, 0,
+                0, 0, 0, 1, 0,
+                0, 1, 1, 1, 0,
+                0, 0, 0, 1, 0,
+                0, 1, 1, 1, 0
+            };
+            double[] pattern4 = {
+                0, 1, 0, 1, 0,
+                0, 1, 0, 1, 0,
+                0, 1, 1, 1, 0,
+                0, 0, 0, 1, 0,
+                0, 0, 0, 1, 0
+            };
+            double[] pattern5 = {
+                0, 1, 1, 1, 0,
+                0, 1, 0, 0, 0,
+                0, 1, 1, 1, 0,
+                0, 0, 0, 1, 0,
+                0, 1, 1, 1, 0
+            };
+            double[] pattern6 = {
+                0, 1, 1, 1, 0,
+                0, 1, 0, 0, 0,
+                0, 1, 1, 1, 0,
+                0, 1, 0, 1, 0,
+                0, 1, 1, 1, 0
+            };
+            double[] pattern7 = {
+                0, 1, 1, 1, 0,
+                0, 0, 0, 1, 0,
+                0, 0, 0, 1, 0,
+                0, 0, 1, 0, 0,
+                0, 1, 0, 0, 0
+            };
+            double[] pattern8 = {
+                0, 1, 1, 1, 0,
+                0, 1, 0, 1, 0,
+                0, 1, 1, 1, 0,
+                0, 1, 0, 1, 0,
+                0, 1, 1, 1, 0
+            };
+            double[] pattern9 = {
+                0, 1, 1, 1, 0,
+                0, 1, 0, 1, 0,
+                0, 1, 1, 1, 0,
+                0, 0, 0, 1, 0,
+                0, 1, 1, 1, 0
+            };
+            testPatterns = new double[10][];
+            for (int i = 0; i < 10; i++)
+                testPatterns[i] = new double[25];
+
+            testPatterns[0] = pattern0;
+            testPatterns[1] = pattern1;
+            testPatterns[2] = pattern2;
+            testPatterns[3] = pattern3;
+            testPatterns[4] = pattern4;
+            testPatterns[5] = pattern5;
+            testPatterns[6] = pattern6;
+            testPatterns[7] = pattern7;
+            testPatterns[8] = pattern8;
+            testPatterns[9] = pattern9;
+
+            double[][] expectedOutputs = {  // 50000, 625
+                new double[] { 1,0,0,0,0,0,0,0,0,0 },
+                new double[] { 0,1,0,0,0,0,0,0,0,0 },
+                new double[] { 0,0,1,0,0,0,0,0,0,0 },
+                new double[] { 0,0,0,1,0,0,0,0,0,0 },
+                new double[] { 0,0,0,0,1,0,0,0,0,0 },
+                new double[] { 0,0,0,0,0,1,0,0,0,0 },
+                new double[] { 0,0,0,0,0,0,1,0,0,0 },
+                new double[] { 0,0,0,0,0,0,0,1,0,0 },
+                new double[] { 0,0,0,0,0,0,0,0,1,0 },
+                new double[] { 0,0,0,0,0,0,0,0,0,1 },
+
+                /*new double[1] {0.0},
+                new double[1] {0.1},
+                new double[1] {0.2},
+                new double[1] {0.3},
+                new double[1] {0.4},
+                new double[1] {0.5},
+                new double[1] {0.6},
+                new double[1] {0.7},
+                new double[1] {0.8},
+                new double[1] {0.9},*/
+            };
+            nn.LearningAlg.Learn(testPatterns, expectedOutputs);
+            timer.Stop();
+            MessageBox.Show("done training.. Time taken " + timer.ElapsedMilliseconds.ToString());
+            // All 3 nested loops using TPL 72058
+            // Only Matrix Multiplication using TPL 67553
+            // No TPL at all 58834, 33715 (once) :)
+        }
+
+        private void btnLoadMNIST_Click(object sender, EventArgs e)
+        {
+            try {
+                //String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\trainingAll60000";
+                String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\train";
+                //String testDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\testAll10000";
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                DataPoint[] trainData = ImageReader.ReadAllData(trainDir);
+                sw.Stop();
+                MessageBox.Show("Time taken for trainer data " + sw.ElapsedMilliseconds.ToString());
+
+                //sw.Reset();
+                //sw.Start();
+                //DataPoint[] testData = ImageReader.ReadAllData(testDir);
+
+                //sw.Stop();
+                //MessageBox.Show("Time taken for test data " + sw.ElapsedMilliseconds.ToString());
+                int[] layers = { 100, 625 }; // neurons in hidden layer, ouput layer
+                nn = new Network(625, layers);   // # of inputs
+                nn.randomizeAll();
+                nn.LearningAlg.ErrorTreshold = 0.0001f;
+                nn.LearningAlg.MaxIteration = 10000;
+                nn.LearningAlg.Learn(trainData, trainData);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void btnTestMNIST_Click(object sender, EventArgs e)
+        {
+            try {
+                OpenFileDialog ofd = new OpenFileDialog();
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    DataPoint dtunknown = ImageReader.ReadDataPoint(ofd.FileName);
+
+                }
+            }
+            catch (Exception ex){
+                MessageBox.Show(ex.Message);
+            }
+        }
+    }
+}
