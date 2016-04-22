@@ -27,8 +27,8 @@ namespace LoadMNIST
             //count the file number 
             //foreach (FileInfo fi in diR.GetFiles())
             FileInfo[] files = diR.GetFiles();
-            for (int counter = 0; counter < fileNum; ++ counter)
-            //Parallel.For(0, fileNum, counter =>
+            //for (int counter = 0; counter < fileNum; ++ counter)
+            Parallel.For(0, fileNum, counter =>
             {
                 String fname = files[counter].FullName;
                 Bitmap bmp = new Bitmap(Image.FromFile(fname));
@@ -69,7 +69,7 @@ namespace LoadMNIST
                 //dataIndex++;
                 if ((dataIndex % 500) == 0)
                     Console.WriteLine("iter: " + dataIndex);
-            }/*);*/
+            });
             return dataArray;
         }
 
