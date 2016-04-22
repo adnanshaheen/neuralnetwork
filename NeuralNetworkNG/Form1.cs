@@ -204,7 +204,7 @@ namespace NeuralNetworkNG
                 sw.Start();
                 double[][] trainData = ImageReader.ReadAllData(trainDir);
                 sw.Stop();
-                MessageBox.Show("Time taken for trainer data " + sw.ElapsedMilliseconds.ToString());
+                MessageBox.Show("Time taken to read the trainer data " + sw.ElapsedMilliseconds.ToString());
 
                 int[] layers = { 100, trainData[0].Count() }; // neurons in hidden layer, ouput layer
                 nn = new Network(trainData[0].Count(), layers);   // # of inputs
