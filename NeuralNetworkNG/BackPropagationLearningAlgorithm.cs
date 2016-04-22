@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace NeuralNetworkLibAM
 {
@@ -38,6 +39,7 @@ namespace NeuralNetworkLibAM
     class BackPropagationLearningAlgorithm : LearningAlgorithm
     {
  		protected double alpha = 0.1f;  // training rate
+        object olock = new object();
         public double Alpha 
 		{
 			get { return alpha; }
@@ -103,11 +105,12 @@ namespace NeuralNetworkLibAM
 
                 // ins is the input training data 2-D array
                 for (int i=0; i<ins.Length; i++)   // for each input trainng dataset
-				{
-					err = 0f;
-					nout = nnet.Output(inputs[i]);  // compute outputs of the Neural Network, for a training set
+                //Parallel.For(0, ins.Length, i =>  // NOTE: This gives us bad result, we can't do this
+                {
+                    err = 0f;
+                    nout = nnet.Output(inputs[i]);  // compute outputs of the Neural Network, for a training set
                                                     // it stores output, ws in each neuron
-                    for (int j = 0; j < nout.Length; j++)  
+                    for (int j = 0; j < nout.Length; j++)
                     {
                         e[j] = outs[i][j] - nout[j];  // outs is the training expected data set
                         err += e[j] * e[j];  // square the error
@@ -118,7 +121,7 @@ namespace NeuralNetworkLibAM
                     ComputeDeltaWAndDeltaBForEachLayer(DeltaWList, DeltaBList, inputs, i);
                     if (bDoStochastic == true)
                         UpdateWeightsStochastic(DeltaWList, DeltaBList);
-                }  // all training set data processed for one round
+                }//);  // all training set data processed for one round
 				iter++;
                 if ((iter % 50) == 0)
                     Console.WriteLine("Training Iteration - Epoch = " + iter.ToString() + " Error=" + err.ToString());

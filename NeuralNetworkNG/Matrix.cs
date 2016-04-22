@@ -564,12 +564,13 @@ namespace Mapack
 
 			double[][] x = X.Array;
 			for (int i = 0; i < rows; i++)
+            //Parallel.For(0, rows, i =>
 			{
 				for (int j = 0; j < columns; j++)
 				{
 					x[i][j] = data[i][j] * right;
 				}
-			}
+			}//);
 
 			return X;
 		}
@@ -612,8 +613,8 @@ namespace Mapack
 
 			int size = left.columns;
 			double[] column = new double[size];
-            for (int j = 0; j < columns; j++)
-            //Parallel.For(0, columns, j =>
+            //for (int j = 0; j < columns; j++)
+            Parallel.For(0, columns, j =>
             {
                 for (int k = 0; k < size; k++)
                 {
@@ -629,9 +630,9 @@ namespace Mapack
                     }
                     x[i][j] = s;
                 }
-            }/*);*/
+            });
 
-			return X;
+            return X;
 		}
 
 		/// <summary>Matrix-matrix multiplication.</summary>

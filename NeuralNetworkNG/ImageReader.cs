@@ -54,7 +54,7 @@ namespace LoadMNIST
                 {
                     for (int j = 0; j < bmp.Height; j++)
                     {
-                        pointData[tempIndex] = ImgPixelData[i, j]; //convert to 0 to 1 scale 
+                        pointData[tempIndex] = ImgPixelData[i, j] / 255; //convert to 0 to 1 scale 
                         tempIndex++;
                     }
                 }
@@ -73,7 +73,7 @@ namespace LoadMNIST
             return dataArray;
         }
 
-        public static DataPoint ReadDataPoint(String fname)  // fname is full file name
+        public static double[] ReadDataPoint(String fname)  // fname is full file name
         {
             Bitmap bmp = new Bitmap(Image.FromFile(fname));
             byte[,] ImgPixelData = new byte[bmp.Width, bmp.Height];
@@ -92,7 +92,7 @@ namespace LoadMNIST
             //convert to 1D
             int totalPixels = bmp.Width * bmp.Height;
             int tempIndex = 0;
-            byte[] pointData = new byte[totalPixels];
+            double[] pointData = new double[totalPixels];
 
             for (int i = 0; i < bmp.Width; i++)
             {
@@ -102,11 +102,12 @@ namespace LoadMNIST
                     tempIndex++;
                 }
             }
-            char[] seps = { '\\' };
-            string[] parts = fname.Split(seps);
-            int classLabel = parts[parts.Length - 1][0]-48;
-            DataPoint dt = new DataPoint(classLabel, totalPixels, pointData);
-            return dt;
+            //char[] seps = { '\\' };
+            //string[] parts = fname.Split(seps);
+            //int classLabel = parts[parts.Length - 1][0]-48;
+            //DataPoint dt = new DataPoint(classLabel, totalPixels, pointData);
+            //return dt;
+            return pointData;
         }
     }
 }

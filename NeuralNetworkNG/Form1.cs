@@ -206,27 +206,14 @@ namespace NeuralNetworkNG
                 sw.Stop();
                 MessageBox.Show("Time taken for trainer data " + sw.ElapsedMilliseconds.ToString());
 
-                int[] layers = { 100, 625 }; // neurons in hidden layer, ouput layer
-                nn = new Network(625, layers);   // # of inputs
+                int[] layers = { 100, trainData[0].Count() }; // neurons in hidden layer, ouput layer
+                nn = new Network(trainData[0].Count(), layers);   // # of inputs
                 nn.randomizeAll();
                 nn.LearningAlg.ErrorTreshold = 0.0001f;
                 nn.LearningAlg.MaxIteration = 10000;
 
-                double[][] expectedOutputs = {  // 50000, 625
-                    new double[] { 1,0,0,0,0,0,0,0,0,0 },
-                    new double[] { 0,1,0,0,0,0,0,0,0,0 },
-                    new double[] { 0,0,1,0,0,0,0,0,0,0 },
-                    new double[] { 0,0,0,1,0,0,0,0,0,0 },
-                    new double[] { 0,0,0,0,1,0,0,0,0,0 },
-                    new double[] { 0,0,0,0,0,1,0,0,0,0 },
-                    new double[] { 0,0,0,0,0,0,1,0,0,0 },
-                    new double[] { 0,0,0,0,0,0,0,1,0,0 },
-                    new double[] { 0,0,0,0,0,0,0,0,1,0 },
-                    new double[] { 0,0,0,0,0,0,0,0,0,1 },
-                };
-
                 sw.Restart();
-                nn.LearningAlg.Learn(trainData, expectedOutputs);
+                nn.LearningAlg.Learn(trainData, trainData);
                 sw.Stop();
                 MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
             }
@@ -239,12 +226,34 @@ namespace NeuralNetworkNG
         private void btnTestMNIST_Click(object sender, EventArgs e)
         {
             try {
+                if (nn == null)
+                {
+                    MessageBox.Show("Please train me first!!!");
+                    return;
+                }
+
+                double[] dtunknown = null;
                 OpenFileDialog ofd = new OpenFileDialog();
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    DataPoint dtunknown = ImageReader.ReadDataPoint(ofd.FileName);
-
+                    dtunknown = ImageReader.ReadDataPoint(ofd.FileName);
                 }
+
+                double[] res = nn.Output(dtunknown);
+                string out1 = "";
+                int i = 0;
+                foreach (double num in res)
+                {
+                    out1 += i.ToString() + " : " + num.ToString() + "\n";
+                    i++;
+                }
+                MessageBox.Show(out1);
+                out1 = "";
+                for (i = 0; i < dtunknown.Count(); i++)
+                {
+                    out1 += nn.Output(testPatterns[i])[i].ToString() + "\n";
+                }
+                MessageBox.Show(out1);
             }
             catch (Exception ex){
                 MessageBox.Show(ex.Message);
