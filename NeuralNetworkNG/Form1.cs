@@ -202,7 +202,7 @@ namespace NeuralNetworkNG
                 //String testDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\testAll10000";
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                double[][] trainData = ImageReader.ReadAllData(trainDir);
+                double[][] trainData = ImageReader.ReadAllDataScaled(trainDir);
                 sw.Stop();
                 MessageBox.Show("Time taken to read the trainer data " + sw.ElapsedMilliseconds.ToString());
 
@@ -258,6 +258,51 @@ namespace NeuralNetworkNG
             catch (Exception ex){
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void btnLoadPCA_Click(object sender, EventArgs e)
+        {
+            /*
+             * STEPS
+             * 1- Convert image to grayscale
+             * 2- Convert to 2-D image i.e. conversion to vector
+             */
+            //String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\trainingAll60000";
+            String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\train";
+            //String testDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\testAll10000";
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            double[][] trainData = ImageReader.ReadAllData(trainDir);
+            sw.Stop();
+            MessageBox.Show("Time taken to read the trainer data " + sw.ElapsedMilliseconds.ToString());
+
+            /*
+             * STEPS:
+             * 3- Compute the mean vector of all test images
+             * 4- Subtract mean vector from each image
+             * 5- Compute covariant matrix of all test images
+             * pass the vector through the PCA
+             * then pass that data through NN
+             */
+            double[] iMean = PCA.FindMean(trainData);
+            PCA.SubMean(trainData, iMean);
+            PCA.Covariance(trainData);
+
+            int[] layers = { 100, trainData[0].Count() }; // neurons in hidden layer, ouput layer
+            nn = new Network(trainData[0].Count(), layers);   // # of inputs
+            nn.randomizeAll();
+            nn.LearningAlg.ErrorTreshold = 0.0001f;
+            nn.LearningAlg.MaxIteration = 10000;
+
+            sw.Restart();
+            nn.LearningAlg.Learn(trainData, trainData);
+            sw.Stop();
+            MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
+        }
+
+        private void btnTestPCA_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
