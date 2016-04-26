@@ -286,7 +286,8 @@ namespace NeuralNetworkNG
              */
             double[] iMean = PCA.FindMean(trainData);
             PCA.SubMean(trainData, iMean);
-            PCA.Covariance(trainData);
+
+            double[][] covariance =  PCA.Covariance(trainData);
 
             int[] layers = { 100, trainData[0].Count() }; // neurons in hidden layer, ouput layer
             nn = new Network(trainData[0].Count(), layers);   // # of inputs

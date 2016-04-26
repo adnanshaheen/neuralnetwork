@@ -32,9 +32,24 @@ namespace NeuralNetworkNG
                 }
             }
         }
-        public static void Covariance(double[][] Data)
+        public static double[][] Covariance(double[][] Data)
         {
+            double[][] covariance = new double[Data.Length][];
+            int row = Data.Length;
+            int cols = Data[0].Length;
+            for (int i = 0; i < row; ++i)
+            {
+                covariance[i] = new double[Data[i].Length];
+                for (int j = 0; j < cols; ++j)
+                {
+                    for (int k = 0; k < cols; ++ k)
+                    {
+                        covariance[i][j] += Data[i][k] * Data[k][j];
+                    }
+                }
+            }
 
+            return covariance;
         }
     }
 }
