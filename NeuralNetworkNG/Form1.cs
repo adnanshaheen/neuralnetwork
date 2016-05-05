@@ -289,6 +289,18 @@ namespace NeuralNetworkNG
 
             double[][] covariance =  PCA.Covariance(trainData);
 
+            /* Compute the eigan values */
+            PCALib.Matrix mapackMatrix = new PCALib.Matrix(covariance);
+            PCALib.IEigenvalueDecomposition EigenVal = mapackMatrix.GetEigenvalueDecomposition();
+
+            /* select the top 50 Eigen values */
+            int top = 50;
+            double[] topEigen = new double[top];
+            PCA.GetTopN(EigenVal.RealEigenvalues, topEigen, top);
+
+            /* get Eigen vector */
+            double[][] EigenVector = PCA.GetEigenVector(EigenVal.EigenvectorMatrix, top);
+
             int[] layers = { 100, trainData[0].Count() }; // neurons in hidden layer, ouput layer
             nn = new Network(trainData[0].Count(), layers);   // # of inputs
             nn.randomizeAll();

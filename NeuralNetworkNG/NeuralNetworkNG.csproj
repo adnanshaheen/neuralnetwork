@@ -60,6 +60,7 @@
     <Compile Include="Layer.cs" />
     <Compile Include="LearningAlgorithm.cs" />
     <Compile Include="LuDecomposition.cs" />
+    <Compile Include="Mapack.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="Neuron.cs" />
