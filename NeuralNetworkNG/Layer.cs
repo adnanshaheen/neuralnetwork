@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace NeuralNetworkLibAM
 {
@@ -153,8 +154,11 @@ namespace NeuralNetworkLibAM
         {
             if (input.Length != numLayerInputs)
                 throw new Exception("LAYER : Wrong input vector size, unable to compute output value");
-            for (int i = 0; i < numNeurons; i++)
+            //for (int i = 0; i < numNeurons; i++)
+            Parallel.For(0, numNeurons, i =>
+            {
                 outputs[i] = neurons[i].ComputeOutput(input);
+            });
             return outputs;
         }
 
