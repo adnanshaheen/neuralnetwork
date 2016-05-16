@@ -18,6 +18,7 @@ namespace NeuralNetworkNG
     {
         NeuralNetworkLibAM.Network nn = null;
         double[][] testPatterns = null;
+        double[] iMean = null;
         public Form1()
         {
             InitializeComponent();
@@ -284,12 +285,12 @@ namespace NeuralNetworkNG
              * pass the vector through the PCA
              * then pass that data through NN
              */
-            double[] iMean = PCA.FindMean(trainData);
+            iMean = PCA.FindMean(trainData);
             PCA.SubMean(trainData, iMean);
 
             double[][] covariance =  PCA.Covariance(trainData);
 
-            /* Compute the eigan values */
+            /* Compute the eigan values (values are sorted) */
             PCALib.Matrix mapackMatrix = new PCALib.Matrix(covariance);
             PCALib.IEigenvalueDecomposition EigenVal = mapackMatrix.GetEigenvalueDecomposition();
 
@@ -300,6 +301,10 @@ namespace NeuralNetworkNG
 
             /* get Eigen vector */
             double[][] EigenVector = PCA.GetEigenVector(EigenVal.EigenvectorMatrix, top);
+
+            /* multiply eigen vector with vector that has mean substracted */
+            double[][] basisVector = PCA.Multiply(trainData, EigenVector);
+            double[][] transpose = PCA.Transpose(basisVector, top);
 
             int[] layers = { 100, trainData[0].Count() }; // neurons in hidden layer, ouput layer
             nn = new Network(trainData[0].Count(), layers);   // # of inputs

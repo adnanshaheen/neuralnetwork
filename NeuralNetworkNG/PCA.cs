@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NeuralNetworkNG
 {
-    class PCA
+    public class PCA
     {
         public static double[] FindMean(double[][] Data)
         {
@@ -54,9 +54,9 @@ namespace NeuralNetworkNG
 
         public static void GetTopN(double[] values, double[] topVal, int top)
         {
-            int len = values.Length - 1;
+            int len = values.Length - 1;                        /* get final index */
             for (int i = 0; i < top; ++i)
-                topVal[i] = values[len - i];
+                topVal[i] = values[len - i];                    /* get top values, values are sorted descending order */
         }
 
         public static double[][] GetEigenVector(PCALib.IMatrix matrix, int top)
