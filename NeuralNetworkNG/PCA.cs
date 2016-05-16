@@ -24,11 +24,11 @@ namespace NeuralNetworkNG
 
         public static void SubMean(double[][] Data, double[] iMean)
         {
-            for (int i = 0; i < Data[0].Length; i++)
+            for (int i = 0; i < Data.Length; i++)
             {
-                for (int j = 0; j < iMean.Length; ++j)
+                for (int j = 0; j < Data[0].Length; ++j)
                 {
-                    Data[i][j] -= iMean[j];
+                    Data[i][j] -= iMean[i];
                 }
             }
         }
@@ -39,7 +39,7 @@ namespace NeuralNetworkNG
             int cols = Data[0].Length;
             for (int i = 0; i < cols; ++i)
             {
-                covariance[i] = new double[Data[i].Length];
+                covariance[i] = new double[cols];
                 for (int j = 0; j < cols; ++j)
                 {
                     for (int k = 0; k < row; ++ k)
@@ -54,19 +54,48 @@ namespace NeuralNetworkNG
 
         public static void GetTopN(double[] values, double[] topVal, int top)
         {
+            int len = values.Length - 1;
             for (int i = 0; i < top; ++i)
-                topVal[i] = values[i];
+                topVal[i] = values[len - i];
         }
 
         public static double[][] GetEigenVector(PCALib.IMatrix matrix, int top)
         {
-            double[][] EigenVector = new double[matrix.Rows][];
-            for (int i = 0; i < matrix.Rows; ++i) {
-                EigenVector[i] = new double[top];
-                for (int j = 0; j < top; ++j)
-                    EigenVector[i][j] = matrix[i, j];
+            int len = matrix.Rows - 1;                          /* get final index */
+            double[][] EigenVector = new double[top][];         /* create a matrix of top rows */
+            for (int i = 0; i < top; ++i) {
+                EigenVector[i] = new double[matrix.Columns];    /* create a row each of matrix.Columns */
+                for (int j = 0; j < matrix.Columns; ++j)
+                    EigenVector[i][j] = matrix[len - i, j];     /* copy only top eigen vectors */
             }
             return EigenVector;
+        }
+
+        public static double[][] Multiply(double[][] A, double[][] B)
+        {
+            int acol = A.Length;
+            int bcol = B[0].Length;
+            double[][] result = new double[acol][];
+            for (int i = 0; i < acol; ++i)
+            {
+                result[i] = new double[B.Length];
+                for (int j = 0; j < bcol; ++j)
+                    for (int k = 0; k < bcol; ++k)
+                        result[i][j] += A[i][k] * B[k][j];
+            }
+            return result;
+        }
+
+        public static double[][] Transpose(double[][] matrix, int max)
+        {
+            double[][] result = new double[max][];
+            for (int i = 0; i < max; ++i)
+            {
+                result[i] = new double[matrix.Length];
+                for (int j = 0; j < matrix.Length; j++)
+                    result[i][j] = matrix[j][i];
+            }
+            return result;
         }
     }
 }
