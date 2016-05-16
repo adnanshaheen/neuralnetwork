@@ -294,6 +294,20 @@ namespace NeuralNetworkNG
             PCALib.Matrix mapackMatrix = new PCALib.Matrix(covariance);
             PCALib.IEigenvalueDecomposition EigenVal = mapackMatrix.GetEigenvalueDecomposition();
 
+            ///* test code starts */
+            //int n = 1001;
+            //List<EvalEvac> EVList = new List<EvalEvac>();
+            //double[] evcTemp = new double[n];
+            //for (int i = 0; i < n; i++)
+            //{
+            //    for (int j = 0; j < n; j++)
+            //        evcTemp[j] = EigenVal.EigenvectorMatrix[i, j];
+            //    EVList.Add(new EvalEvac(EigenVal.RealEigenvalues[i], evcTemp, n));
+            //}
+
+            //EVList.Sort();
+            ///* test code ends */
+
             /* select the top 50 Eigen values */
             int top = 50;
             double[] topEigen = new double[top];
