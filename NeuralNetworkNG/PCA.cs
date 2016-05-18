@@ -73,14 +73,15 @@ namespace NeuralNetworkNG
 
         public static double[][] Multiply(double[][] A, double[][] B)
         {
-            int acol = A.Length;
-            int bcol = B.Length;
-            double[][] result = new double[acol][];
-            for (int i = 0; i < acol; ++i)
+            int aRow = A.Length;
+            int aCol = A[0].Length;
+            int bCol = B[0].Length;
+            double[][] result = new double[aRow][];
+            for (int i = 0; i < aRow; ++i)
             {
-                result[i] = new double[B.Length];
-                for (int j = 0; j < bcol; ++j)
-                    for (int k = 0; k < bcol; ++k)
+                result[i] = new double[B[0].Length];
+                for (int j = 0; j < bCol; ++j)
+                    for (int k = 0; k < aCol; ++k)
                         result[i][j] += A[i][k] * B[k][j];
             }
             return result;

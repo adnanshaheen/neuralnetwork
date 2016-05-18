@@ -310,15 +310,22 @@ namespace NeuralNetworkNG
 
             /* select the top 50 Eigen values */
             int top = 50;
+#if DEBUG
+            /*
+             * we don't need the eigen values
+             * because the eigen vactors are already
+             * calculated by mapack library
+             */
             double[] topEigen = new double[top];
             PCA.GetTopN(EigenVal.RealEigenvalues, topEigen, top);
-
+#endif // DEBUG
             /* get Eigen vector */
             double[][] EigenVector = PCA.GetEigenVector(EigenVal.EigenvectorMatrix, top);
 
             /* multiply eigen vector with vector that has mean substracted */
-            double[][] basisVector = PCA.Multiply(trainData, EigenVector);
-            double[][] transpose = PCA.Transpose(basisVector, top);
+            double[][] EigenVec = PCA.Transpose(EigenVector, EigenVector[0].Length);
+            double[][] basisVector = PCA.Multiply(trainData, EigenVec);
+//            double[][] transpose = PCA.Transpose(basisVector, top);
 
             int[] layers = { 100, trainData[0].Count() }; // neurons in hidden layer, ouput layer
             nn = new Network(trainData[0].Count(), layers);   // # of inputs
