@@ -98,5 +98,18 @@ namespace NeuralNetworkNG
             }
             return result;
         }
+
+        public static double[] EuclDistance(double[][] project, double[][] projectionInput)
+        {
+            double[] result = new double[projectionInput.Length];
+            for (int i = 0; i < projectionInput.Length; i++)
+            {
+                double res = 0;
+                for (int j = 0; j < projectionInput[0].Length; j++)
+                    res += (projectionInput[i][j] - project[0][j]) * (projectionInput[i][j] - project[0][j]);
+                result[i] = Math.Sqrt(res);
+            }
+            return result;
+        }
     }
 }

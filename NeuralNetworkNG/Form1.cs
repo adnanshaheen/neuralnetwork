@@ -20,6 +20,7 @@ namespace NeuralNetworkNG
         double[][] testPatterns = null;
         double[] iMean = null;
         double[][] EigenFaceImage = null;
+        double[][] projectionInput = null;
 
         public Form1()
         {
@@ -251,12 +252,6 @@ namespace NeuralNetworkNG
                     i++;
                 }
                 MessageBox.Show(out1);
-                out1 = "";
-                for (i = 0; i < dtunknown.Count(); i++)
-                {
-                    out1 += nn.Output(testPatterns[i])[i].ToString() + "\n";
-                }
-                MessageBox.Show(out1);
             }
             catch (Exception ex){
                 MessageBox.Show(ex.Message);
@@ -331,16 +326,16 @@ namespace NeuralNetworkNG
 
                 /* Project each image on to reduced top dimensional space */
                 double[][] transposeInput = PCA.Transpose(trainData, trainData[0].Length);
-                double[][] projection = PCA.Multiply(transposeInput, EigenFaceImage);
+                projectionInput = PCA.Multiply(transposeInput, EigenFaceImage);
 
-                int[] layers = { 100, projection[0].Count() }; // neurons in hidden layer, ouput layer
-                nn = new Network(projection[0].Count(), layers);   // # of inputs
+                int[] layers = { 50, 10 }; // neurons in hidden layer, ouput layer
+                nn = new Network(projectionInput[0].Count(), layers);   // # of inputs
                 nn.randomizeAll();
                 nn.LearningAlg.ErrorTreshold = 0.0001f;
                 nn.LearningAlg.MaxIteration = 10000;
 
                 sw.Restart();
-                nn.LearningAlg.Learn(projection, projection);
+                nn.LearningAlg.Learn(projectionInput, projectionInput);
                 sw.Stop();
                 MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
             }
@@ -372,6 +367,18 @@ namespace NeuralNetworkNG
                     double[][] transposeInput = PCA.Transpose(input, input[0].Length);
 
                     double[][] project = PCA.Multiply(transposeInput, EigenFaceImage);
+
+                    double[] Eucledian = PCA.EuclDistance(project, projectionInput);
+
+                    double[] res = nn.Output(Eucledian);
+                    string out1 = "";
+                    int i = 0;
+                    foreach (double num in res)
+                    {
+                        out1 += i.ToString() + " : " + num.ToString() + "\n";
+                        i++;
+                    }
+                    MessageBox.Show(out1);
                 }
             }
             catch (Exception ex)
