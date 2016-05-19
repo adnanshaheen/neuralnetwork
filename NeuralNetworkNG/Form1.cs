@@ -19,6 +19,8 @@ namespace NeuralNetworkNG
         NeuralNetworkLibAM.Network nn = null;
         double[][] testPatterns = null;
         double[] iMean = null;
+        double[][] EigenFaceImage = null;
+
         public Form1()
         {
             InitializeComponent();
@@ -237,7 +239,7 @@ namespace NeuralNetworkNG
                 OpenFileDialog ofd = new OpenFileDialog();
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    dtunknown = ImageReader.ReadDataPoint(ofd.FileName);
+                    dtunknown = ImageReader.ReadDataPointScaled(ofd.FileName);
                 }
 
                 double[] res = nn.Output(dtunknown);
@@ -263,85 +265,119 @@ namespace NeuralNetworkNG
 
         private void btnLoadPCA_Click(object sender, EventArgs e)
         {
-            /*
-             * STEPS
-             * 1- Convert image to grayscale
-             * 2- Convert to 2-D image i.e. conversion to vector
-             */
-            //String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\trainingAll60000";
-            String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\train";
-            //String testDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\testAll10000";
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            double[][] trainData = ImageReader.ReadAllData(trainDir);
-            sw.Stop();
-            MessageBox.Show("Time taken to read the trainer data " + sw.ElapsedMilliseconds.ToString());
+            try {
+                /*
+                 * STEPS
+                 * 1- Convert image to grayscale
+                 * 2- Convert to 2-D image i.e. conversion to vector
+                 */
+                //String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\trainingAll60000";
+                String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\train";
+                //String testDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\testAll10000";
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                double[][] trainData = ImageReader.ReadAllData(trainDir);
+                sw.Stop();
+                MessageBox.Show("Time taken to read the trainer data " + sw.ElapsedMilliseconds.ToString());
 
-            /*
-             * STEPS:
-             * 3- Compute the mean vector of all test images
-             * 4- Subtract mean vector from each image
-             * 5- Compute covariant matrix of all test images
-             * pass the vector through the PCA
-             * then pass that data through NN
-             */
-            iMean = PCA.FindMean(trainData);
-            PCA.SubMean(trainData, iMean);
+                /*
+                 * STEPS:
+                 * 3- Compute the mean vector of all test images
+                 * 4- Subtract mean vector from each image
+                 * 5- Compute covariant matrix of all test images
+                 * pass the vector through the PCA
+                 * then pass that data through NN
+                 */
+                iMean = PCA.FindMean(trainData);
+                PCA.SubMean(trainData, iMean);
 
-            double[][] covariance =  PCA.Covariance(trainData);
+                double[][] covariance = PCA.Covariance(trainData);
 
-            /* Compute the eigan values (values are sorted) */
-            PCALib.Matrix mapackMatrix = new PCALib.Matrix(covariance);
-            PCALib.IEigenvalueDecomposition EigenVal = mapackMatrix.GetEigenvalueDecomposition();
+                /* Compute the eigan values (values are sorted) */
+                PCALib.Matrix mapackMatrix = new PCALib.Matrix(covariance);
+                PCALib.IEigenvalueDecomposition EigenVal = mapackMatrix.GetEigenvalueDecomposition();
 
-            ///* test code starts */
-            //int n = 1001;
-            //List<EvalEvac> EVList = new List<EvalEvac>();
-            //double[] evcTemp = new double[n];
-            //for (int i = 0; i < n; i++)
-            //{
-            //    for (int j = 0; j < n; j++)
-            //        evcTemp[j] = EigenVal.EigenvectorMatrix[i, j];
-            //    EVList.Add(new EvalEvac(EigenVal.RealEigenvalues[i], evcTemp, n));
-            //}
+                ///* test code starts */
+                //int n = 1001;
+                //List<EvalEvac> EVList = new List<EvalEvac>();
+                //double[] evcTemp = new double[n];
+                //for (int i = 0; i < n; i++)
+                //{
+                //    for (int j = 0; j < n; j++)
+                //        evcTemp[j] = EigenVal.EigenvectorMatrix[i, j];
+                //    EVList.Add(new EvalEvac(EigenVal.RealEigenvalues[i], evcTemp, n));
+                //}
 
-            //EVList.Sort();
-            ///* test code ends */
+                //EVList.Sort();
+                ///* test code ends */
 
-            /* select the top 50 Eigen values */
-            int top = 50;
+                /* select the top 50 Eigen values */
+                int top = 50;
 #if DEBUG
-            /*
-             * we don't need the eigen values
-             * because the eigen vactors are already
-             * calculated by mapack library
-             */
-            double[] topEigen = new double[top];
-            PCA.GetTopN(EigenVal.RealEigenvalues, topEigen, top);
+                /*
+                 * we don't need the eigen values
+                 * because the eigen vactors are already
+                 * calculated by mapack library
+                 */
+                double[] topEigen = new double[top];
+                PCA.GetTopN(EigenVal.RealEigenvalues, topEigen, top);
 #endif // DEBUG
-            /* get Eigen vector */
-            double[][] EigenVector = PCA.GetEigenVector(EigenVal.EigenvectorMatrix, top);
+                /* get Eigen vector */
+                double[][] EigenVector = PCA.GetEigenVector(EigenVal.EigenvectorMatrix, top);
 
-            /* multiply eigen vector with vector that has mean substracted */
-            double[][] EigenVec = PCA.Transpose(EigenVector, EigenVector[0].Length);
-            double[][] basisVector = PCA.Multiply(trainData, EigenVec);
-//            double[][] transpose = PCA.Transpose(basisVector, top);
+                /* multiply eigen vector with vector that has mean substracted */
+                double[][] EigenVec = PCA.Transpose(EigenVector, EigenVector[0].Length);
+                EigenFaceImage = PCA.Multiply(trainData, EigenVec);
 
-            int[] layers = { 100, trainData[0].Count() }; // neurons in hidden layer, ouput layer
-            nn = new Network(trainData[0].Count(), layers);   // # of inputs
-            nn.randomizeAll();
-            nn.LearningAlg.ErrorTreshold = 0.0001f;
-            nn.LearningAlg.MaxIteration = 10000;
+                /* Project each image on to reduced top dimensional space */
+                double[][] transposeInput = PCA.Transpose(trainData, trainData[0].Length);
+                double[][] projection = PCA.Multiply(transposeInput, EigenFaceImage);
 
-            sw.Restart();
-            nn.LearningAlg.Learn(trainData, trainData);
-            sw.Stop();
-            MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
+                int[] layers = { 100, projection[0].Count() }; // neurons in hidden layer, ouput layer
+                nn = new Network(projection[0].Count(), layers);   // # of inputs
+                nn.randomizeAll();
+                nn.LearningAlg.ErrorTreshold = 0.0001f;
+                nn.LearningAlg.MaxIteration = 10000;
+
+                sw.Restart();
+                nn.LearningAlg.Learn(projection, projection);
+                sw.Stop();
+                MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void btnTestPCA_Click(object sender, EventArgs e)
         {
+            try
+            {
+                if (nn == null)
+                {
+                    MessageBox.Show("Please train me first!!!");
+                    return;
+                }
 
+                double[][] dtunknown = null;
+                OpenFileDialog ofd = new OpenFileDialog();
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    dtunknown = new double[1][];
+                    dtunknown[0] = ImageReader.ReadDataPoint(ofd.FileName);
+
+                    double[][] input = PCA.Transpose(dtunknown, dtunknown[0].Length);
+                    PCA.SubMean(input, iMean);
+                    double[][] transposeInput = PCA.Transpose(input, input[0].Length);
+
+                    double[][] project = PCA.Multiply(transposeInput, EigenFaceImage);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }

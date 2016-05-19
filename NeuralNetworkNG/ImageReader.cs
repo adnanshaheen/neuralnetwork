@@ -73,7 +73,7 @@ namespace LoadMNIST
             return dataArray;
         }
 
-        public static double[] ReadDataPoint(String fname)  // fname is full file name
+        public static double[] ReadDataPointScaled(String fname)  // fname is full file name
         {
             Bitmap bmp = new Bitmap(Image.FromFile(fname));
             byte[,] ImgPixelData = new byte[bmp.Width, bmp.Height];
@@ -150,6 +150,42 @@ namespace LoadMNIST
                 }
             }/*);*/
             return dataArray;
+        }
+        public static double[] ReadDataPoint(String fname)  // fname is full file name
+        {
+            Bitmap bmp = new Bitmap(Image.FromFile(fname));
+            byte[,] ImgPixelData = new byte[bmp.Width, bmp.Height];
+            if (ImageProc.IsGrayScale(bmp) == false) //make sure it is grayscale 
+            {
+                ImageProc.ConvertToGray(bmp);
+            }
+            for (int i = 0; i < bmp.Width; i++)
+            {
+                for (int j = 0; j < bmp.Height; j++)
+                {
+                    ImgPixelData[i, j] = bmp.GetPixel(i, j).R;
+                }
+            }
+
+            //convert to 1D
+            int totalPixels = bmp.Width * bmp.Height;
+            int tempIndex = 0;
+            double[] pointData = new double[totalPixels];
+
+            for (int i = 0; i < bmp.Width; i++)
+            {
+                for (int j = 0; j < bmp.Height; j++)
+                {
+                    pointData[tempIndex] = ImgPixelData[i, j];
+                    tempIndex++;
+                }
+            }
+            //char[] seps = { '\\' };
+            //string[] parts = fname.Split(seps);
+            //int classLabel = parts[parts.Length - 1][0]-48;
+            //DataPoint dt = new DataPoint(classLabel, totalPixels, pointData);
+            //return dt;
+            return pointData;
         }
     }
 }
