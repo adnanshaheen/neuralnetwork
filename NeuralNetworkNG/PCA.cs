@@ -111,5 +111,21 @@ namespace NeuralNetworkNG
             }
             return result;
         }
+
+        public static double[][] ConvertToPixels(double[][] data)
+        {
+            double[][] result = new double[data.Length][];
+            double min = 0;
+            double max = 0;
+            for (int i = 0; i < data.Length; i++)
+            {
+                min = data[i].Min();
+                max = data[i].Max();
+                result[i] = new double[data[0].Length];
+                for (int j = 0; j < data[0].Length; j++)
+                    result[i][j] = ((data[i][j] - min) / (max - min)) * 255;
+            }
+            return result;
+        }
     }
 }

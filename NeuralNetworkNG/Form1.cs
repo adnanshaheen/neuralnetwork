@@ -328,6 +328,10 @@ namespace NeuralNetworkNG
                 double[][] transposeInput = PCA.Transpose(trainData, trainData[0].Length);
                 projectionInput = PCA.Multiply(transposeInput, EigenFaceImage);
 
+#if DEBUG
+                double[][] image = PCA.ConvertToPixels(projectionInput);
+#endif // DEBUG
+
                 int[] layers = { 50, 10 }; // neurons in hidden layer, ouput layer
                 nn = new Network(projectionInput[0].Count(), layers);   // # of inputs
                 nn.randomizeAll();
