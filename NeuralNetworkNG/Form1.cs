@@ -330,6 +330,12 @@ namespace NeuralNetworkNG
 
 #if DEBUG
                 double[][] image = PCA.ConvertToPixels(projectionInput);
+                int iNo = 0;
+                foreach (Control obj in groupbox1.Controls)
+                {
+                    if (obj is PictureBox)
+                        obj.BackgroundImage = PCA.Draw(image, iNo++);
+                }
 #endif // DEBUG
 
                 int[] layers = { 50, 10 }; // neurons in hidden layer, ouput layer

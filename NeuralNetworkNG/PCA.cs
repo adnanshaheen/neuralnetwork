@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -126,6 +127,28 @@ namespace NeuralNetworkNG
                     result[i][j] = ((data[i][j] - min) / (max - min)) * 255;
             }
             return result;
+        }
+
+        public static Bitmap Draw(double[][] image, int iNo)
+        {
+            int width = 28;
+            int height = 28;
+            Bitmap bitmap = new Bitmap(width, height);
+            int iRow = 0;
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    bitmap.SetPixel(i, j,
+                        Color.FromArgb(
+                            (byte)image[iRow][iNo],
+                            (byte)image[iRow][iNo],
+                            (byte)image[iRow][iNo]
+                            ));
+                    ++iRow;
+                }
+            }
+            return bitmap;
         }
     }
 }
