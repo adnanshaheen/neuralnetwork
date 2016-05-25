@@ -260,7 +260,7 @@ namespace NeuralNetworkNG
 
         private void btnLoadPCA_Click(object sender, EventArgs e)
         {
-            try {
+           try {
                 /*
                  * STEPS
                  * 1- Convert image to grayscale
@@ -269,6 +269,7 @@ namespace NeuralNetworkNG
                 //String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\trainingAll60000";
                 String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\train";
                 //String testDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\testAll10000";
+                //string trainDir = "..\\..\\..\\..\\..\\..\\handouts\\AttDataSet\\ATTDataSet\\Training";
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
                 double[][] trainData = ImageReader.ReadAllData(trainDir);
@@ -292,20 +293,6 @@ namespace NeuralNetworkNG
                 PCALib.Matrix mapackMatrix = new PCALib.Matrix(covariance);
                 PCALib.IEigenvalueDecomposition EigenVal = mapackMatrix.GetEigenvalueDecomposition();
 
-                ///* test code starts */
-                //int n = 1001;
-                //List<EvalEvac> EVList = new List<EvalEvac>();
-                //double[] evcTemp = new double[n];
-                //for (int i = 0; i < n; i++)
-                //{
-                //    for (int j = 0; j < n; j++)
-                //        evcTemp[j] = EigenVal.EigenvectorMatrix[i, j];
-                //    EVList.Add(new EvalEvac(EigenVal.RealEigenvalues[i], evcTemp, n));
-                //}
-
-                //EVList.Sort();
-                ///* test code ends */
-
                 /* select the top 50 Eigen values */
                 int top = 50;
 #if DEBUG
@@ -321,31 +308,30 @@ namespace NeuralNetworkNG
                 double[][] EigenVector = PCA.GetEigenVector(EigenVal.EigenvectorMatrix, top);
 
                 /* multiply eigen vector with vector that has mean substracted */
-                double[][] EigenVec = PCA.Transpose(EigenVector, EigenVector[0].Length);
-                EigenFaceImage = PCA.Multiply(trainData, EigenVec);
+                EigenFaceImage = PCA.Multiply(trainData, EigenVector);
 
                 /* Project each image on to reduced top dimensional space */
-                double[][] transposeInput = PCA.Transpose(trainData, trainData[0].Length);
-                projectionInput = PCA.Multiply(transposeInput, EigenFaceImage);
+                double[][] transposeInput = PCA.Transpose(EigenFaceImage, EigenFaceImage[0].Length);
+                //projectionInput = PCA.Multiply(trainData, transposeInput);
 
 #if DEBUG
-                double[][] image = PCA.ConvertToPixels(projectionInput);
+                double[][] image = PCA.ConvertToPixels(transposeInput);
                 int iNo = 0;
                 foreach (Control obj in groupbox1.Controls)
                 {
                     if (obj is PictureBox)
-                        obj.BackgroundImage = PCA.Draw(image, iNo++);
+                        obj.BackgroundImage = PCA.Draw(image, iNo++, trainDir);
                 }
 #endif // DEBUG
 
                 int[] layers = { 50, 10 }; // neurons in hidden layer, ouput layer
-                nn = new Network(projectionInput[0].Count(), layers);   // # of inputs
+                nn = new Network(transposeInput[0].Count(), layers);   // # of inputs
                 nn.randomizeAll();
                 nn.LearningAlg.ErrorTreshold = 0.0001f;
                 nn.LearningAlg.MaxIteration = 10000;
 
                 sw.Restart();
-                nn.LearningAlg.Learn(projectionInput, projectionInput);
+                nn.LearningAlg.Learn(transposeInput, transposeInput);
                 sw.Stop();
                 MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
             }

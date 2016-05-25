@@ -133,7 +133,7 @@ namespace LoadMNIST
             //Parallel.For(0, fileNum, counter =>
             {
                 String fname = files[counter].FullName;
-                Bitmap bmp = new Bitmap(Image.FromFile(fname));
+                Bitmap bmp = new Bitmap(fname);
                 if (ImageProc.IsGrayScale(bmp) == false) //make sure it is grayscale 
                 {
                     ImageProc.ConvertToGray(bmp);
@@ -144,8 +144,8 @@ namespace LoadMNIST
                     for (int j = 0; j < bmp.Height; ++ j)
                     {
                         if (counter == 0)
-                            dataArray[image ++] = new double[fileNum];
-                        dataArray[i][counter] = bmp.GetPixel(i, j).R;
+                            dataArray[image] = new double[fileNum];
+                        dataArray[image ++][counter] = bmp.GetPixel(i, j).R;
                     }
                 }
             }/*);*/

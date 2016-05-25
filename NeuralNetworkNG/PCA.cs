@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,10 +44,11 @@ namespace NeuralNetworkNG
                 covariance[i] = new double[cols];
                 for (int j = 0; j < cols; ++j)
                 {
+                    double val = 0;
                     for (int k = 0; k < row; ++ k)
-                    {
-                        covariance[i][j] += Data[k][i] * Data[k][j];
-                    }
+                        val += Data[k][i] * Data[k][j];
+
+                    covariance[i][j] = val;
                 }
             }
 
@@ -62,11 +64,11 @@ namespace NeuralNetworkNG
 
         public static double[][] GetEigenVector(PCALib.IMatrix matrix, int top)
         {
-            int len = matrix.Rows - 1;                          /* get final index */
-            double[][] EigenVector = new double[top][];         /* create a matrix of top rows */
-            for (int i = 0; i < top; ++i) {
-                EigenVector[i] = new double[matrix.Columns];    /* create a row each of matrix.Columns */
-                for (int j = 0; j < matrix.Columns; ++j)
+            int len = matrix.Rows - 1;                              /* get final index */
+            double[][] EigenVector = new double[matrix.Rows][];     /* create a matrix of top rows */
+            for (int i = 0; i < matrix.Rows; ++i) {
+                EigenVector[i] = new double[top];                   /* create a row each of matrix.Columns */
+                for (int j = 0; j < top; ++j)
                     EigenVector[i][j] = matrix[len - i, j];     /* copy only top eigen vectors */
             }
             return EigenVector;
@@ -129,23 +131,26 @@ namespace NeuralNetworkNG
             return result;
         }
 
-        public static Bitmap Draw(double[][] image, int iNo)
+        public static Bitmap Draw(double[][] image, int iNo, string dir)
         {
-            int width = 28;
-            int height = 28;
+            DirectoryInfo diR = new DirectoryInfo(dir);
+
+            FileInfo[] files = diR.GetFiles();
+            String filename = files[0].FullName;
+            Bitmap bmp = new Bitmap(Image.FromFile(filename));
+            int width = bmp.Width;
+            int height = bmp.Height;
             Bitmap bitmap = new Bitmap(width, height);
-            int iRow = 0;
+            int iCol = 0;
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < height; j++)
                 {
-                    bitmap.SetPixel(i, j,
-                        Color.FromArgb(
-                            (byte)image[iRow][iNo],
-                            (byte)image[iRow][iNo],
-                            (byte)image[iRow][iNo]
-                            ));
-                    ++iRow;
+                    byte R = (byte)image[iNo][iCol];
+                    byte G = (byte)image[iNo][iCol];
+                    byte B = (byte)image[iNo][iCol];
+                    bitmap.SetPixel(i, j, Color.FromArgb(R, G, B));
+                    ++ iCol;
                 }
             }
             return bitmap;
