@@ -50,7 +50,7 @@ namespace NeuralNetworkLibAM
         {
             get { return layers[NumLayers - 1].NumNeurons; }
         }
-        
+
         /// <summary>
         /// Learning algorithm used by the network
         /// </summary>
@@ -206,15 +206,46 @@ namespace NeuralNetworkLibAM
         /// </summary>
         /// <param name="input">the input vector</param>
         /// <returns>the output vector of the neuronal network</returns>
-        public double[] Output(double[] input)  // computes output of the whole network, given inputs
+        public double[] Output(double[] input, int ins = -1)  // computes output of the whole network, given inputs
         {
             if (input.Length != numInputs)
                 throw new Exception("PERCEPTRON : Wrong input vector size, unable to compute output value");
             double[] result;
             result = layers[0].Output(input);
+
+            /* Sparsity */
+            if (ins != -1)
+                CalculateSparsity(input, result, ins);
+
             for (int i = 1; i < NumLayers; i++)
                 result = layers[i].Output(result);
             return result;
+        }
+
+        private void CalculateSparsity(double[] input, double[] result, int ins)
+        {
+            /* compute average of hidden layer */
+            double avg = 0;
+            for (int i = 0; i < result.Length; i++)
+            {
+                avg += result[i];
+            }
+            avg /= result.Length;
+
+            /* multiply avg with sum of input for this image */
+            double sum = 0;
+            for (int j = 0; j < input.Length; j++)
+            {
+                sum += input[j];
+            }
+
+            avg *= sum;
+
+            /* divide by number of hidden layer */
+            avg /= result.Length;
+
+            /* keep it in vector */
+            this.LearningAlg[ins] = avg;
         }
 
         public Matrix GetDelta(int layernum)

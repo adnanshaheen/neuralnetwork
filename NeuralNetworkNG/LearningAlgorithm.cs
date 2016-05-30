@@ -49,8 +49,18 @@ namespace NeuralNetworkLibAM
             get { return error; }
         }
 
-            
- 
+        protected double[] sparsity;   // sparsity vector
+
+        /// <summary>
+        /// Indexer of the sparsity to get or set sparsity value for each input image/data
+        /// </summary>
+        public double this[int num]
+        {
+            get { return sparsity[num]; }
+            set { sparsity[num] = value; }
+        }
+
+
         #region CONSTRUCTOR AND METHODS
 
         /// <summary>
@@ -80,6 +90,7 @@ namespace NeuralNetworkLibAM
                 throw new Exception("LearningAlgorithme : inputs and outputs size does not match : learning aborded ");
             ins = inputs;
             outs = expected_outputs;
+            sparsity = new double[ins.Length];
         }
 
 
