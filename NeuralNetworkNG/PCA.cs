@@ -39,18 +39,19 @@ namespace NeuralNetworkNG
             double[][] covariance = new double[Data[0].Length][];
             int row = Data.Length;
             int cols = Data[0].Length;
-            for (int i = 0; i < cols; ++i)
+            //for (int i = 0; i < cols; ++i)
+            Parallel.For(0, cols, i =>
             {
                 covariance[i] = new double[cols];
                 for (int j = 0; j < cols; ++j)
                 {
                     double val = 0;
-                    for (int k = 0; k < row; ++ k)
+                    for (int k = 0; k < row; ++k)
                         val += Data[k][i] * Data[k][j];
 
                     covariance[i][j] = val;
                 }
-            }
+            });
 
             return covariance;
         }
@@ -80,13 +81,14 @@ namespace NeuralNetworkNG
             int aCol = A[0].Length;
             int bCol = B[0].Length;
             double[][] result = new double[aRow][];
-            for (int i = 0; i < aRow; ++i)
+            //for (int i = 0; i < aRow; ++i)
+            Parallel.For(0, aRow, i =>
             {
                 result[i] = new double[B[0].Length];
                 for (int j = 0; j < bCol; ++j)
                     for (int k = 0; k < aCol; ++k)
                         result[i][j] += A[i][k] * B[k][j];
-            }
+            });
             return result;
         }
 

@@ -319,6 +319,8 @@ namespace NeuralNetworkNG
                  * pass the vector through the PCA
                  * then pass that data through NN
                  */
+                sw.Restart();
+
                 iMean = PCA.FindMean(trainData);
                 PCA.SubMean(trainData, iMean);
 
@@ -348,6 +350,9 @@ namespace NeuralNetworkNG
                 /* Project each image on to reduced top dimensional space */
                 double[][] transposeInput = PCA.Transpose(EigenFaceImage, EigenFaceImage[0].Length);
                 //projectionInput = PCA.Multiply(trainData, transposeInput);
+                sw.Stop();
+                MessageBox.Show("Done PCA...Time taken " + sw.ElapsedMilliseconds.ToString());      // 256094 normal vs 211514 parallel
+
 
 #if DEBUG
                 double[][] image = PCA.ConvertToPixels(transposeInput);
