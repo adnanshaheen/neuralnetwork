@@ -17,6 +17,7 @@ namespace NeuralNetworkNG
     public partial class Form1 : Form
     {
         NeuralNetworkLibAM.Network nn = null;
+        NeuralNetworkLibAM.Network nn1 = null;
         double[][] testPatterns = null;
         double[] iMean = null;
         double[][] EigenFaceImage = null;
@@ -220,6 +221,40 @@ namespace NeuralNetworkNG
                 nn.LearningAlg.Learn(trainData, trainData);
                 sw.Stop();
                 MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
+                nn.save("auto");
+#if false
+                double[][] expectedOutputs = {
+                    new double[] { 1,0,0,0,0,0,0,0,0,0 },
+                    new double[] { 0,1,0,0,0,0,0,0,0,0 },
+                    new double[] { 0,0,1,0,0,0,0,0,0,0 },
+                    new double[] { 0,0,0,1,0,0,0,0,0,0 },
+                    new double[] { 0,0,0,0,1,0,0,0,0,0 },
+                    new double[] { 0,0,0,0,0,1,0,0,0,0 },
+                    new double[] { 0,0,0,0,0,0,1,0,0,0 },
+                    new double[] { 0,0,0,0,0,0,0,1,0,0 },
+                    new double[] { 0,0,0,0,0,0,0,0,1,0 },
+                    new double[] { 0,0,0,0,0,0,0,0,0,1 },
+                };
+                int[] nnLayers = { 50, expectedOutputs.Length }; // neurons in hidden layer, ouput layer
+                nn1 = new Network(trainData[0].Count(), nnLayers);   // # of inputs
+                nn1.randomizeAll();
+                nn1.LearningAlg.ErrorTreshold = 0.0001f;
+                nn1.LearningAlg.MaxIteration = 10000;
+
+                double[][] inputData = new double[trainData.Length][];
+                for (int i = 0; i < trainData.Length; i++)
+                {
+                    inputData[i] = new double[trainData[0].Length];
+                    inputData[i] = nn.Output(trainData[i]);
+                }
+
+                sw.Restart();
+                nn1.LearningAlg.Learn(inputData, expectedOutputs);
+                sw.Stop();
+                MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
+                nn1.save("nn");
+#endif // 0
+
             }
             catch (Exception ex)
             {
@@ -322,7 +357,7 @@ namespace NeuralNetworkNG
                     if (obj is PictureBox)
                         obj.BackgroundImage = PCA.Draw(image, iNo++, trainDir);
                 }
-#endif // DEBUG
+#else
 
                 int[] layers = { 50, 10 }; // neurons in hidden layer, ouput layer
                 nn = new Network(transposeInput[0].Count(), layers);   // # of inputs
@@ -334,6 +369,7 @@ namespace NeuralNetworkNG
                 nn.LearningAlg.Learn(transposeInput, transposeInput);
                 sw.Stop();
                 MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
+#endif // DEBUG
             }
             catch (Exception ex)
             {

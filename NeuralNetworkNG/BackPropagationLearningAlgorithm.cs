@@ -64,13 +64,13 @@ namespace NeuralNetworkLibAM
 
         protected double[] e;  // error vector
 
-		#region CONSTRUCTOR
-		/// <summary>
-		/// Build a new BackPropagation learning algorithm instance
-		/// with alpha = 0,5 and gamma = 0,3
-		/// </summary>
-		/// <param name="nn">The neural network to train</param>
-		public BackPropagationLearningAlgorithm(Network nn) : base(nn) 
+        #region CONSTRUCTOR
+        /// <summary>
+        /// Build a new BackPropagation learning algorithm instance
+        /// with alpha = 0,5 and gamma = 0,3
+        /// </summary>
+        /// <param name="nn">The neural network to train</param>
+        public BackPropagationLearningAlgorithm(Network nn) : base(nn) 
 		{
 		}
 
@@ -108,7 +108,7 @@ namespace NeuralNetworkLibAM
                 //Parallel.For(0, ins.Length, i =>  // NOTE: This gives us bad result, we can't do this
                 {
                     err = 0f;
-                    nout = nnet.Output(inputs[i]);  // compute outputs of the Neural Network, for a training set
+                    nout = nnet.Output(inputs[i], i);  // compute outputs of the Neural Network, for a training set
                                                     // it stores output, ws in each neuron
                     for (int j = 0; j < nout.Length; j++)
                     {
