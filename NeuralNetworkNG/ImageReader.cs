@@ -54,7 +54,7 @@ namespace LoadMNIST
                 {
                     for (int j = 0; j < bmp.Height; j++)
                     {
-                        pointData[tempIndex] = ImgPixelData[i, j] / 255; //convert to 0 to 1 scale
+                        pointData[tempIndex] = (double) ImgPixelData[i, j] / 255; //convert to 0 to 1 scale
                         tempIndex++;
                     }
                 }
