@@ -207,7 +207,8 @@ namespace NeuralNetworkNG
                 //String testDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\testAll10000";
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                double[][] trainData = ImageReader.ReadAllDataScaled(trainDir);
+                DataPoint[] data = ImageReader.ReadAllDataScaled(trainDir);
+                double[][] trainData = ImageReader.GetData(data);
                 sw.Stop();
                 MessageBox.Show("Time taken to read the trainer data " + sw.ElapsedMilliseconds.ToString());
 

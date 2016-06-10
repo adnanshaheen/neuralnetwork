@@ -11,7 +11,7 @@ namespace LoadMNIST
     class ImageReader
     {
         //For the MNIST data set 
-        public static double[][] ReadAllDataScaled(String directory)
+        public static DataPoint[] ReadAllDataScaled(String directory)
         {
             object olock = new object();
             int fileNum = 0;
@@ -23,7 +23,7 @@ namespace LoadMNIST
             {
                 fileNum++;
             }
-            double[][] dataArray = new double[fileNum][];
+            DataPoint[] dataArray = new DataPoint[fileNum];
             //count the file number 
             //foreach (FileInfo fi in diR.GetFiles())
             FileInfo[] files = diR.GetFiles();
@@ -61,10 +61,12 @@ namespace LoadMNIST
 
                 //String s1 = fi.Name;
                 //Char output = s1[0];
-                Char output = files[counter].Name[0];
-                int classLabel = (Convert.ToInt16(output) - 48); //will only work with numbers 0-9
                 lock (olock)
-                    dataArray[dataIndex++] = pointData;// new DataPoint(classLabel, totalPixels, pointData);
+                {
+                    Char output = files[counter].Name[0];
+                    int classLabel = (Convert.ToInt16(output) - 48); //will only work with numbers 0-9
+                    dataArray[dataIndex++] = new DataPoint(classLabel, totalPixels, pointData);
+                }
                // dataArray[dataIndex].Bmp = bmp;
                 //dataIndex++;
                 if ((dataIndex % 500) == 0)
@@ -186,6 +188,18 @@ namespace LoadMNIST
             //DataPoint dt = new DataPoint(classLabel, totalPixels, pointData);
             //return dt;
             return pointData;
+        }
+
+        public static double[][] GetData(DataPoint[] input)
+        {
+            int len = input.Length;
+            double[][] ouput = new double[len][];
+            for (int i = 0; i < len; i++)
+            {
+                ouput[i] = new double[len];
+                ouput[i] = input[i].Data;
+            }
+            return ouput;
         }
     }
 }
