@@ -201,5 +201,20 @@ namespace LoadMNIST
             }
             return ouput;
         }
+
+        public static double[][] ExpectedOutput(DataPoint[] input)
+        {
+            int len = input.Length;
+            double[][] output = new double[len][];
+            for (int i = 0; i < len; i++)
+            {
+                output[i] = new double[10];
+                for (int j = 0; j < 10; j++)
+                {
+                    output[i][j] = input[i].ClassLabel == j ? 1 : 0;
+                }
+            }
+            return output;
+        }
     }
 }

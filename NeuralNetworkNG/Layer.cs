@@ -36,19 +36,33 @@ namespace NeuralNetworkLibAM
         }
 
         protected Neuron[] neurons;  // neurons in the layer
+        public Neuron[] Neurons
+        {
+            get
+            {
+                return neurons;
+            }
+
+            set
+            {
+                neurons = value;
+            }
+        }
 
         protected double[] outputs;  // outputs of the layer
         public double[] LastOutputs
         {
             get { return outputs; }
         }
-                
+
+
+
         /// <summary>
         /// Indexer of layer's neurons
         /// </summary>
         public Neuron this[int neuronNum]
         {
-            get { return neurons[neuronNum]; }
+            get { return Neurons[neuronNum]; }
         }
         
 
@@ -65,10 +79,10 @@ namespace NeuralNetworkLibAM
         {
             numNeurons = neurons;
             numLayerInputs = inputs;
-            this.neurons = new Neuron[numNeurons];
+            this.Neurons = new Neuron[numNeurons];
             outputs = new double[numNeurons];
             for (int i = 0; i < neurons; i++)
-                this.neurons[i] = new Neuron(inputs, f);
+                this.Neurons[i] = new Neuron(inputs, f);
         }
 
         /// <summary>
@@ -81,10 +95,10 @@ namespace NeuralNetworkLibAM
         {
             numNeurons = neurons;
             numLayerInputs = inputs;
-            this.neurons = new Neuron[numNeurons];
+            this.Neurons = new Neuron[numNeurons];
             outputs = new double[numNeurons];
             for (int i = 0; i < neurons; i++)
-                this.neurons[i] = new Neuron(inputs);
+                this.Neurons[i] = new Neuron(inputs);
         }
 
         /// <summary>
@@ -93,7 +107,7 @@ namespace NeuralNetworkLibAM
         /// <param name="f">An activation function</param>
         public void setActivationFunction(IActivationFunction f)
         {
-            foreach (Neuron n in neurons)
+            foreach (Neuron n in Neurons)
                 n.F = f;
         }
 
@@ -106,7 +120,7 @@ namespace NeuralNetworkLibAM
         /// </summary>
         public void randomizeWeight()
         {
-            foreach (Neuron n in neurons)
+            foreach (Neuron n in Neurons)
                 n.randomizeWeight();
         }
         /// <summary>
@@ -114,7 +128,7 @@ namespace NeuralNetworkLibAM
         /// </summary>
         public void randomizeBias()
         {
-            foreach (Neuron n in neurons)
+            foreach (Neuron n in Neurons)
                 n.randomizeBias();
         }
         /// <summary>
@@ -132,7 +146,7 @@ namespace NeuralNetworkLibAM
         /// <param name="max">the maximum value</param>
         public void setRandomizationInterval(double min, double max)
         {
-            foreach (Neuron n in neurons)
+            foreach (Neuron n in Neurons)
             {
                 n.RandomMin = min;
                 n.RandomMax = max;
@@ -157,7 +171,7 @@ namespace NeuralNetworkLibAM
             //for (int i = 0; i < numNeurons; i++)
             Parallel.For(0, numNeurons, i =>
             {
-                outputs[i] = neurons[i].ComputeOutput(input);
+                outputs[i] = Neurons[i].ComputeOutput(input);
             });
             return outputs;
         }

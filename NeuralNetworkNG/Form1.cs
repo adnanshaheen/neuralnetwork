@@ -17,7 +17,7 @@ namespace NeuralNetworkNG
     public partial class Form1 : Form
     {
         NeuralNetworkLibAM.Network nn = null;
-        NeuralNetworkLibAM.Network nn1 = null;
+        NeuralNetworkLibAM.Network sparse_encoder = null;
         double[][] testPatterns = null;
         double[] iMean = null;
         double[][] EigenFaceImage = null;
@@ -197,9 +197,9 @@ namespace NeuralNetworkNG
         private void btnLoadMNIST_Click(object sender, EventArgs e)
         {
             try {
-                /* TODO:
-                 * Convert the DataPoint array to double[][]
-                 * Since DataPoint is byte[], So DataPoint[] is technically
+                /*
+                 * Use the DataPoint[]
+                 * Get double[][] from DataPoint[]
                  * array of array, should be easily converted to double[][]
                  */
                 //String trainDir = "..\\..\\..\\..\\..\\..\\handouts\\data\\trainingAll60000";
@@ -213,49 +213,39 @@ namespace NeuralNetworkNG
                 MessageBox.Show("Time taken to read the trainer data " + sw.ElapsedMilliseconds.ToString());
 
                 int[] layers = { 100, trainData[0].Count() }; // neurons in hidden layer, ouput layer
-                nn = new Network(trainData[0].Count(), layers);   // # of inputs
-                nn.randomizeAll();
+                sparse_encoder = new Network(trainData[0].Count(), layers);   // # of inputs
+                sparse_encoder.randomizeAll();
+                sparse_encoder.LearningAlg.ErrorTreshold = 0.0001f;
+                sparse_encoder.LearningAlg.MaxIteration = 10000;
+
+                //sparse_encoder = Network.load("sparse_encoder");
+                sw.Restart();
+                sparse_encoder.LearningAlg.Learn(trainData, trainData);
+                sw.Stop();
+                MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
+
+                /* Save the auto encoder learn */
+                sparse_encoder.save("sparse_encoder");
+
+                double[][] expectedOutputs = ImageReader.ExpectedOutput(data);
+                int[] nnLayers = { 100, expectedOutputs[0].Length }; // neurons in hidden layer, ouput layer
+                nn = new Network(trainData[0].Count(), nnLayers);   // # of inputs
+
+                /* No need to randmize, get weight and baise from sparse_encoder */
+                for (int i = 0; i < sparse_encoder.layers[0].NumNeurons; i++)
+                {
+                    nn.layers[0].Neurons[i].weights = sparse_encoder.layers[0].Neurons[i].weights;
+                    nn.layers[0].Neurons[i].Bias = sparse_encoder.layers[0].Neurons[i].Bias;
+                }
+                //nn.randomizeAll();
                 nn.LearningAlg.ErrorTreshold = 0.0001f;
                 nn.LearningAlg.MaxIteration = 10000;
 
                 sw.Restart();
-                nn.LearningAlg.Learn(trainData, trainData);
+                nn.LearningAlg.Learn(trainData, expectedOutputs);
                 sw.Stop();
                 MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
-                nn.save("auto");
-#if false
-                double[][] expectedOutputs = {
-                    new double[] { 1,0,0,0,0,0,0,0,0,0 },
-                    new double[] { 0,1,0,0,0,0,0,0,0,0 },
-                    new double[] { 0,0,1,0,0,0,0,0,0,0 },
-                    new double[] { 0,0,0,1,0,0,0,0,0,0 },
-                    new double[] { 0,0,0,0,1,0,0,0,0,0 },
-                    new double[] { 0,0,0,0,0,1,0,0,0,0 },
-                    new double[] { 0,0,0,0,0,0,1,0,0,0 },
-                    new double[] { 0,0,0,0,0,0,0,1,0,0 },
-                    new double[] { 0,0,0,0,0,0,0,0,1,0 },
-                    new double[] { 0,0,0,0,0,0,0,0,0,1 },
-                };
-                int[] nnLayers = { 50, expectedOutputs.Length }; // neurons in hidden layer, ouput layer
-                nn1 = new Network(trainData[0].Count(), nnLayers);   // # of inputs
-                nn1.randomizeAll();
-                nn1.LearningAlg.ErrorTreshold = 0.0001f;
-                nn1.LearningAlg.MaxIteration = 10000;
-
-                double[][] inputData = new double[trainData.Length][];
-                for (int i = 0; i < trainData.Length; i++)
-                {
-                    inputData[i] = new double[trainData[0].Length];
-                    inputData[i] = nn.Output(trainData[i]);
-                }
-
-                sw.Restart();
-                nn1.LearningAlg.Learn(inputData, expectedOutputs);
-                sw.Stop();
-                MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
-                nn1.save("nn");
-#endif // 0
-
+                nn.save("nn_ae");
             }
             catch (Exception ex)
             {
@@ -268,8 +258,12 @@ namespace NeuralNetworkNG
             try {
                 if (nn == null)
                 {
-                    MessageBox.Show("Please train me first!!!");
-                    return;
+                    nn = Network.load("nn_ae");
+                    if (nn == null)
+                    {
+                        MessageBox.Show("Please train me first!!!");
+                        return;
+                    }
                 }
 
                 double[] dtunknown = null;
@@ -354,8 +348,6 @@ namespace NeuralNetworkNG
                 sw.Stop();
                 MessageBox.Show("Done PCA...Time taken " + sw.ElapsedMilliseconds.ToString());      // 256094 normal vs 211514 parallel
 
-
-#if DEBUG
                 double[][] image = PCA.ConvertToPixels(transposeInput);
                 int iNo = 0;
                 foreach (Control obj in groupbox1.Controls)
@@ -363,7 +355,6 @@ namespace NeuralNetworkNG
                     if (obj is PictureBox)
                         obj.BackgroundImage = PCA.Draw(image, iNo++, trainDir);
                 }
-#else
 
                 int[] layers = { 50, 10 }; // neurons in hidden layer, ouput layer
                 nn = new Network(transposeInput[0].Count(), layers);   // # of inputs
@@ -375,7 +366,7 @@ namespace NeuralNetworkNG
                 nn.LearningAlg.Learn(transposeInput, transposeInput);
                 sw.Stop();
                 MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
-#endif // DEBUG
+                nn.save("nn_pca");
             }
             catch (Exception ex)
             {
@@ -389,8 +380,12 @@ namespace NeuralNetworkNG
             {
                 if (nn == null)
                 {
-                    MessageBox.Show("Please train me first!!!");
-                    return;
+                    nn = Network.load("nn_pca");
+                    if (nn == null)
+                    {
+                        MessageBox.Show("Please train me first!!!");
+                        return;
+                    }
                 }
 
                 double[][] dtunknown = null;
