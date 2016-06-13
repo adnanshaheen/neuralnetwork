@@ -205,6 +205,7 @@ namespace NeuralNetworkLibAM
         /// Compute the value for the specified input
         /// </summary>
         /// <param name="input">the input vector</param>
+        /// <param name="ins">compute sparseness only for hidden layer</param>
         /// <returns>the output vector of the neuronal network</returns>
         public double[] Output(double[] input, int ins = -1)  // computes output of the whole network, given inputs
         {
@@ -214,15 +215,15 @@ namespace NeuralNetworkLibAM
             result = layers[0].Output(input);
 
             /* Sparsity */
-            if (ins != -1)
-                CalculateSparsity(input, result, ins);
+            if (ins != -1 && LearningAlg.Autoencoder)
+                CalculateSparsity(input, result);
 
             for (int i = 1; i < NumLayers; i++)
                 result = layers[i].Output(result);
             return result;
         }
 
-        private void CalculateSparsity(double[] input, double[] result, int ins)
+        private void CalculateSparsity(double[] input, double[] result)
         {
             /* compute average of hidden layer */
             double avg = 0;
@@ -244,8 +245,8 @@ namespace NeuralNetworkLibAM
             /* divide by number of hidden layer */
             avg /= result.Length;
 
-            /* keep it in vector */
-            this.LearningAlg[ins] = avg;
+            /* keep it in */
+            this.LearningAlg.Sparsity = avg;
         }
 
         public Matrix GetDelta(int layernum)

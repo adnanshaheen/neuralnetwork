@@ -62,6 +62,10 @@ namespace NeuralNetworkLibAM
             set { lambda = value; }
         }
 
+        private double beta = 6.0;  // beta value
+
+        private double rho = 0.01;  // rho value
+
         protected double[] e;  // error vector
 
         #region CONSTRUCTOR
@@ -239,6 +243,12 @@ namespace NeuralNetworkLibAM
                     for (int k = 0; k < nnet[l + 1].NumNeurons; k++)
                         sk += nnet[l + 1][k].Delta * nnet[l + 1][k][j];    // Delta from curr layer * weight 
                     nnet[l][j].Delta = nnet[l][j].OutputPrime * sk;
+
+                    if (Autoencoder)
+                    {
+                        nnet[l][j].Delta += beta * (((rho / nnet.LearningAlg.Sparsity) * -1) +
+                            ((1 - rho) / (1 - nnet.LearningAlg.Sparsity)));
+                    }
                 }
             }
         }
