@@ -302,7 +302,11 @@ namespace NeuralNetworkNG
                 //string trainDir = "..\\..\\..\\..\\..\\..\\handouts\\AttDataSet\\ATTDataSet\\Training";
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                double[][] trainData = ImageReader.ReadAllData(trainDir);
+                DataPoint[] data = ImageReader.ReadAllDataUnscaled(trainDir);
+                //double[][] trainData = ImageReader.ReadAllData(trainDir);
+                double[][] trainDataOrig = ImageReader.GetData(data);
+                double[][] trainData = PCA.Transpose(trainDataOrig, trainDataOrig[0].Length);
+
                 sw.Stop();
                 MessageBox.Show("Time taken to read the trainer data " + sw.ElapsedMilliseconds.ToString());
 
@@ -344,7 +348,8 @@ namespace NeuralNetworkNG
 
                 /* Project each image on to reduced top dimensional space */
                 double[][] transposeInput = PCA.Transpose(EigenFaceImage, EigenFaceImage[0].Length);
-                //projectionInput = PCA.Multiply(trainData, transposeInput);
+                double[][] transposeTrainData = PCA.Transpose(trainData, trainData[0].Length);
+                projectionInput = PCA.Multiply(transposeTrainData, EigenFaceImage);
                 sw.Stop();
                 MessageBox.Show("Done PCA...Time taken " + sw.ElapsedMilliseconds.ToString());      // 256094 normal vs 211514 parallel
 
@@ -356,14 +361,16 @@ namespace NeuralNetworkNG
                         obj.BackgroundImage = PCA.Draw(image, iNo++, trainDir);
                 }
 
+                double[][] expectedOutputs = ImageReader.ExpectedOutput(data);
+
                 int[] layers = { 50, 10 }; // neurons in hidden layer, ouput layer
-                nn = new Network(transposeInput[0].Count(), layers);   // # of inputs
+                nn = new Network(projectionInput[0].Length, layers);   // # of inputs
                 nn.randomizeAll();
                 nn.LearningAlg.ErrorTreshold = 0.0001f;
                 nn.LearningAlg.MaxIteration = 10000;
 
                 sw.Restart();
-                nn.LearningAlg.Learn(transposeInput, transposeInput);
+                nn.LearningAlg.Learn(projectionInput, expectedOutputs);
                 sw.Stop();
                 MessageBox.Show("Done training...Time taken " + sw.ElapsedMilliseconds.ToString());
                 nn.save("nn_pca");
@@ -396,14 +403,15 @@ namespace NeuralNetworkNG
                     dtunknown[0] = ImageReader.ReadDataPoint(ofd.FileName);
 
                     double[][] input = PCA.Transpose(dtunknown, dtunknown[0].Length);
-                    PCA.SubMean(input, iMean);
+                    PCA.SubMean(input, iMean);  // 784*1
                     double[][] transposeInput = PCA.Transpose(input, input[0].Length);
 
-                    double[][] project = PCA.Multiply(transposeInput, EigenFaceImage);
+                    double[][] project = PCA.Multiply(transposeInput, EigenFaceImage);  // Pu (1*50)
 
-                    double[] Eucledian = PCA.EuclDistance(project, projectionInput);
+                    double[] unkonwn = project[0];
+                    //double[] Eucledian = PCA.EuclDistance(project, projectionInput);
 
-                    double[] res = nn.Output(Eucledian);
+                    double[] res = nn.Output(unkonwn);
                     string out1 = "";
                     int i = 0;
                     foreach (double num in res)
